@@ -182,6 +182,8 @@ N.wire.on('session_load', function session_load() {
   // Now load session data into models
   //
 
+  N.app.fontsList.lock();
+
   N.app.fontName(session.fontname);
 
   if (_.has(session, 'css_prefix_text')) { N.app.cssPrefixText(String(session.css_prefix_text)); }
@@ -205,7 +207,7 @@ N.wire.on('session_load', function session_load() {
 
   // reset selection prior to set glyph data
   // not nesessary now, since we load session only on start
-  //_.each(N.app.fontsList.selectedGlyphs(), function (glyph) { glyph.toggleSelect(false); });
+  //_.each(N.app.fontsList.selectedGlyphs(), function (glyph) { glyph.selected(false); });
 
   // load glyphs states
   _.each(session.fonts, function (sessionFont, name) {
@@ -221,6 +223,8 @@ N.wire.on('session_load', function session_load() {
     //
     if (targetFont.fontname === 'custom_icons') {
       var charRefCode = 0xE800;
+
+      targetFont.lock();
 
       _.each(sessionFont.glyphs, function (glyph) {
         // skip broken glyphs
@@ -239,6 +243,8 @@ N.wire.on('session_load', function session_load() {
           svg:      glyph.svg
         });
       });
+
+      targetFont.unlock();
       return;
     }
 
@@ -259,7 +265,7 @@ N.wire.on('session_load', function session_load() {
       // Check if glyph with this `uid` really exists
       if (!targetGlyph) { return; }
 
-      targetGlyph.toggleSelect(!!glyph.selected);
+      targetGlyph.selected(!!glyph.selected);
       targetGlyph.code(glyph.code || targetGlyph.originalCode);
       targetGlyph.name(glyph.css || targetGlyph.originalName);
     });
@@ -272,9 +278,11 @@ N.wire.on('session_load', function session_load() {
     if (glyph) {
       let code = glyph.code();
 
-      glyph.toggleSelect(true);
+      glyph.selected(true);
       // prevent code modification via codes tracker
       glyph.code(code);
     }
   });
+
+  N.app.fontsList.unlock();
 });
