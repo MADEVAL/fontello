@@ -155,12 +155,14 @@ function allocateCode(glyph, encoding) {
       throw new Error('Unknown glyph enumerator: ' + encoding);
   }
 
-  glyph.code(newCode);
-
   // Ensure code is marks as 'used' for the glyph. It's needed in cases when
   // default glyph code is equal to an allocated one - so automatic allocation
   // does not work.
-  usedCodes[newCode] = glyph;
+  if (glyph.code() === newCode) {
+    usedCodes[newCode] = glyph;
+  }
+
+  glyph.code(newCode);
 }
 
 
